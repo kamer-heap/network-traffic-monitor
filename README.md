@@ -16,22 +16,19 @@
 </div>
 
 <!-- Badges -->
-<!-- Badges -->
-[![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Flask](https://img.shields.io/badge/Flask-2.x-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com)
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
-[![License](https://img.shields.io/badge/License-MIT-00ff88?style=for-the-badge)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://shields.io)
+[![Scapy](https://img.shields.io/badge/Scapy-2.5%2B-FF8C00?style=for-the-badge&logo=python&logoColor=white)](https://shields.io)
+[![Flask](https://img.shields.io/badge/Flask-2.x-FF6B6B?style=for-the-badge&logo=flask&logoColor=white)](https://shields.io)
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://shields.io)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://shields.io)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://shields.io)
+[![License](https://img.shields.io/badge/License-MIT-00C896?style=for-the-badge)](https://shields.io)
+[![Status](https://img.shields.io/badge/Status-Active-7C3AED?style=for-the-badge)](https://shields.io)
 
-<p align="center">
-
-[![Status](https://img.shields.io/badge/Status-Active-00ff88?style=for-the-badge)]()
-[![Course](https://img.shields.io/badge/Course-CS--301%20Networks-blueviolet?style=for-the-badge)]()
 
 </p>
 
-> **⬡ A browser-based network traffic monitoring dashboard** that simulates real-time packet capture, protocol analysis, port-to-service mapping, and live filtering — all powered by a Flask REST API backend.
+> **⬡ A browser-based network traffic monitoring dashboard** that captures live traffic (real-time) or simulates packets, analyzes protocols, maps ports to services, and filters — all powered by a Flask REST API backend.
 
 <br/>
 
@@ -41,11 +38,10 @@
 
 ## 🌐 About the Project
 
-The **Network Traffic Monitoring and Analysis Platform** is an individual project developed for the **Computer Networks (CS-301)** course at **Punjab University College of Information Technology (PUCIT), University of the Punjab, Lahore**.
 
 The platform demonstrates core networking concepts through a fully functional, browser-based live dashboard:
 
-- 🔄 **Real-time packet simulation** — generates TCP, UDP, and ICMP packets dynamically every 2 seconds
+- 🔄 **Hybrid capture** — real-time packet sniffing (Scapy) with automatic fallback to intelligent simulation
 - 📊 **Live statistics** — tracks total packets, per-protocol counts, and average packet size
 - 🔍 **Filtering** — filter traffic by protocol, source IP, or destination IP
 - 📜 **Activity logging** — timestamped log of all user actions and system events
@@ -57,9 +53,10 @@ No external JavaScript frameworks. No paid tools. Just Python + a browser.
 
 ## ✨ Features
 
+
 | Feature | Description |
 |---|---|
-| ▶️ **Start / Stop Monitoring** | Toggle real-time packet capture on and off |
+| ▶️ **Start / Stop Monitoring** | Toggle live packet capture (real or simulated) on/off |
 | 📦 **Live Packet Table** | View packets with time, source/destination IP & port, protocol, service, and size |
 | 🏷️ **Protocol Badges** | Color-coded badges for TCP (blue), UDP (orange), and ICMP (pink) |
 | 📈 **Statistics Bar** | Total packets, TCP/UDP/ICMP counts, and average packet size — all live |
@@ -71,18 +68,31 @@ No external JavaScript frameworks. No paid tools. Just Python + a browser.
 | 💾 **Memory-Safe** | Packet buffer capped at 200 entries to prevent memory growth |
 
 ---
+## 🧪 Real Capture vs Simulation Mode
 
+| Mode | When used | Features |
+|---|---|---|
+| **Real mode** | Scapy installed + sufficient privileges | Sniffs actual network traffic from your interface – shows real IPs, ports, protocols |
+| **Simulation mode** | Scapy missing or insufficient permissions | Generates realistic synthetic packets every 2 seconds – identical data structure, no special rights needed |
+
+The system decides automatically at startup and prints a message in the terminal:
+- `✓ REAL-TIME packet capture mode ENABLED`
+- `⚠ SIMULATION mode (install Scapy for real capture)`
+
+You don't need to change any code – the same frontend works identically.
+---
 ## 🛠️ Tech Stack
 
 ### Backend
 | Technology | Role |
 |---|---|
 | **Python 3** | Core backend language |
+| **Scapy 2.5+** | Real-time packet sniffing from live network interface (fallback to random simulation if missing) |
 | **Flask 2.x** | Web framework & REST API server |
 | **Flask-CORS** | Enables cross-origin requests from the frontend |
 | **threading** (stdlib) | Runs background packet generation as a daemon thread |
-| **random** (stdlib) | Generates realistic randomized packet values |
-| **datetime** (stdlib) | Produces `HH:MM:SS` timestamps per packet |
+| **random** (stdlib) | Used only in simulation fallback mode |
+| **datetime** (stdlib) | Timestamps for both real and simulated packets |
 
 ### Frontend
 | Technology | Role |
@@ -105,7 +115,7 @@ No external JavaScript frameworks. No paid tools. Just Python + a browser.
 ```
 network-traffic-monitor/
 │
-├── app.py                  # Flask backend — REST API + packet simulation engine
+├── app.py                 # Flask backend — REST API + packet simulation engine
 │
 └── templates/
     └── index.html          # Frontend dashboard — single self-contained HTML file
@@ -122,9 +132,13 @@ network-traffic-monitor/
 Make sure you have **Python 3** installed. Then install the required packages:
 
 ```bash
-pip install flask flask-cors
+pip install flask flask-cors scapy
 ```
-
+> **For real-time capture:**  
+> - Linux/macOS: run with `sudo` (e.g., `sudo python app.py`)  
+> - Windows: install [Npcap](https://npcap.com) and run terminal as Administrator  
+> 
+> **If Scapy is missing or permissions insufficient**, the system automatically falls back to **simulation mode** (no special rights needed). Both modes use the same frontend.
 ### Installation & Run
 
 ```bash
@@ -137,8 +151,14 @@ mkdir templates
 mv index.html templates/
 
 # 3. Run the Flask server
-python app.py
+python app.py          # simulation mode if Scapy missing, or real capture if Scapy present
 ```
+On Linux/macOS for real capture:
+```bash
+
+sudo python app.py
+```
+
 
 ### Open in Browser
 
@@ -148,7 +168,7 @@ http://localhost:5000
 
 ### Usage
 
-1. **▶ START** — begins monitoring and generates 50 initial packets, then adds one new packet every 2 seconds
+1. **▶ START** — begins monitoring: (real mode) starts sniffing live traffic; (simulation mode) generates 50 initial packets then adds one every 2 seconds
 2. **■ STOP** — pauses packet generation (data is preserved)
 3. **✕ CLEAR** — wipes all packet data and resets statistics
 4. Use the **Filter Bar** to narrow results by protocol, source IP, or destination IP
@@ -163,11 +183,12 @@ All endpoints are served at `http://localhost:5000`.
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/` | Serves the frontend dashboard (`index.html`) |
-| `POST` | `/api/start` | Starts packet simulation (generates 50 initial + continuous stream) |
+| `POST` | `/api/start` | Starts packet capture (real mode or simulation fallback) – clears previous data |
 | `POST` | `/api/stop` | Stops the background packet generation thread |
 | `GET` | `/api/packets` | Returns the full packet list as a JSON array |
 | `GET` | `/api/stats` | Returns aggregated stats: totals, protocol counts, average size |
 | `POST` | `/api/clear` | Clears all packet data and resets the buffer |
+> ✅ This mapping applies to **both real captured packets** (from Scapy) and simulated packets.
 
 ### Example Response — `/api/stats`
 
@@ -216,12 +237,49 @@ The backend maps 20+ well-known port numbers to application-layer service names:
 > Unrecognized ports are displayed as `Port-{n}`. ICMP packets have no port and are labeled `ICMP`.
 
 ---
+## 📄 License
+
+MIT License
+
+Copyright (c) 2026 Khadija Amer (kamer-stack)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## 👩‍💻 Author
+
+**Khadija Amer**  
+GitHub: [@kamer-stack](https://github.com/kamer-stack)
+
+---
+
+## ⭐ Show Your Support
+
+If you found this project helpful, please give it a ⭐ on GitHub!
+
 
 
 <div align="center">
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=00ff88&height=100&section=footer" width="100%"/>
 
-*Built with 💚 | PUCIT, University of the Punjab*
+*Built with 💚 by Khadija Amer | PUCIT*
 
 </div>
