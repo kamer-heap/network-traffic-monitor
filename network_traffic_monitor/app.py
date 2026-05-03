@@ -4,6 +4,17 @@ import random
 import threading
 import time
 from datetime import datetime
+import os
+
+# ---------- Try to import real packet capture library ----------
+try:
+    from scapy.all import sniff, IP, TCP, UDP, ICMP
+    SCAPY_AVAILABLE = True
+except ImportError:
+    SCAPY_AVAILABLE = False
+    print("[WARNING] Scapy not installed. Falling back to simulated packets.")
+    print("          For real capture: pip install scapy")
+    print("          On Linux/macOS you may need sudo. On Windows install Npcap.")
 
 app = Flask(__name__)
 CORS(app)
@@ -12,8 +23,9 @@ CORS(app)
 packets_data = []
 monitoring = False
 monitoring_thread = None
+capture_lock = threading.Lock()  # optional, for thread-safe list access
 
-# dictionary for Port to service mapping
+# Port to service mapping (same as before)
 PORT_SERVICE = {
     80: 'HTTP', 443: 'HTTPS', 53: 'DNS', 22: 'SSH', 21: 'FTP',
     25: 'SMTP', 110: 'POP3', 143: 'IMAP', 3306: 'MySQL', 3389: 'RDP',
@@ -31,8 +43,63 @@ def get_service(port):
     except:
         return 'Unknown'
 
+# ---------- Real packet callback (used when Scapy is available) ----------
+def process_real_packet(packet):
+    """Extract data from a live packet and add it to packets_data"""
+    global packets_data
+
+    if not monitoring:
+        return  # stop adding packets when monitoring is off
+
+    # Only handle IP packets
+    if not packet.haslayer(IP):
+        return
+
+    ip_layer = packet[IP]
+    timestamp = datetime.now().strftime('%H:%M:%S')
+    src_ip = ip_layer.src
+    dst_ip = ip_layer.dst
+    size = len(packet)
+
+    # Determine protocol and ports
+    if packet.haslayer(TCP):
+        protocol = 'TCP'
+        src_port = packet[TCP].sport
+        dst_port = packet[TCP].dport
+    elif packet.haslayer(UDP):
+        protocol = 'UDP'
+        src_port = packet[UDP].sport
+        dst_port = packet[UDP].dport
+    elif packet.haslayer(ICMP):
+        protocol = 'ICMP'
+        src_port = '-'
+        dst_port = '-'
+    else:
+        # Non-IP, non-TCP/UDP/ICMP – skip or handle as 'OTHER'
+        return
+
+    service = get_service(dst_port)
+
+    new_packet = {
+        'time': timestamp,
+        'src_ip': src_ip,
+        'src_port': src_port,
+        'dst_ip': dst_ip,
+        'dst_port': dst_port,
+        'protocol': protocol,
+        'service': service,
+        'size': size
+    }
+
+    with capture_lock:
+        packets_data.append(new_packet)
+        # Keep only last 200 packets
+        if len(packets_data) > 200:
+            packets_data = packets_data[-200:]
+
+# ---------- Simulation fallback (same as original) ----------
 def generate_initial_packets(count=50):
-    """Generate initial packet data"""
+    """Generate initial packet data (used for simulation mode only)"""
     protocols = ['TCP', 'UDP', 'ICMP']
     src_ips = ['192.168.1.5', '192.168.1.10', '192.168.1.15', '192.168.1.20', 
                '192.168.1.25', '10.0.0.2', '10.0.0.5', '172.16.0.10']
@@ -58,7 +125,6 @@ def generate_initial_packets(count=50):
             src_port = '-'
             size = random.randint(64, 1000)
         
-        # Create timestamp going backwards for realism
         time_offset = i * random.randint(1, 3)
         timestamp = current_time.timestamp() - time_offset
         time_str = datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')
@@ -76,14 +142,10 @@ def generate_initial_packets(count=50):
     
     return packets
 
-def monitor_worker():
-    """Background thread to simulate packet capture"""
+def simulation_worker():
+    """Original background thread that simulates packets (fallback)"""
     global packets_data, monitoring
-    
-    packet_counter = len(packets_data)
-    
     while monitoring:
-        # Generate a new packet every 2 seconds
         protocol = random.choice(['TCP', 'UDP', 'ICMP'])
         
         if protocol == 'TCP':
@@ -110,28 +172,38 @@ def monitor_worker():
             'size': size
         }
         
-        packets_data.append(new_packet)
-        packet_counter += 1
-        
-        # Keep only last 200 packets to avoid memory issues
-        if len(packets_data) > 200:
-            packets_data = packets_data[-200:]
+        with capture_lock:
+            packets_data.append(new_packet)
+            if len(packets_data) > 200:
+                packets_data = packets_data[-200:]
         
         time.sleep(2)
 
+# ---------- Main monitoring thread (chooses real or simulation) ----------
+def monitor_worker():
+    """Starts either real packet sniffer or simulation based on Scapy availability"""
+    global monitoring, packets_data
+
+    if SCAPY_AVAILABLE:
+        print("[INFO] Starting REAL packet capture on network interface...")
+        print("       (Default interface: try 'eth0' or 'Wi-Fi'. May need sudo on Linux/macOS)")
+        # Sniff packets – stop when monitoring becomes False
+        sniff(prn=process_real_packet, store=False, stop_filter=lambda p: not monitoring)
+    else:
+        print("[INFO] Using simulation mode (Scapy not installed)")
+        simulation_worker()
+
+# ---------- Flask Routes (unchanged from your original) ----------
 @app.route('/')
 def index():
-    """Serve the index.html file"""
     return render_template('index.html')
 
 @app.route('/api/packets')
 def get_packets():
-    """Return all packets - matches your frontend expected format"""
     return jsonify(packets_data)
 
 @app.route('/api/stats')
 def get_stats():
-    """Return statistics - matches your frontend expected format"""
     if not packets_data:
         return jsonify({
             'total_packets': 0,
@@ -157,12 +229,16 @@ def get_stats():
 
 @app.route('/api/start', methods=['POST'])
 def start_monitoring():
-    """Start packet monitoring"""
     global monitoring, monitoring_thread, packets_data
     
     if not monitoring:
-        # Generate initial 50 packets
-        packets_data = generate_initial_packets(50)
+        # Clear previous data when starting fresh
+        with capture_lock:
+            packets_data = []
+            if not SCAPY_AVAILABLE:
+                # Pre-populate with simulated initial packets if in fallback mode
+                packets_data = generate_initial_packets(50)
+        
         monitoring = True
         monitoring_thread = threading.Thread(target=monitor_worker, daemon=True)
         monitoring_thread.start()
@@ -172,27 +248,34 @@ def start_monitoring():
 
 @app.route('/api/stop', methods=['POST'])
 def stop_monitoring():
-    """Stop packet monitoring"""
     global monitoring
     monitoring = False
     return jsonify({'status': 'success', 'message': 'Monitoring stopped'})
 
 @app.route('/api/clear', methods=['POST'])
 def clear_data():
-    """Clear all packet data"""
     global packets_data
-    packets_data = []
+    with capture_lock:
+        packets_data = []
     return jsonify({'status': 'success', 'message': 'Data cleared'})
 
 if __name__ == '__main__':
     print("="*60)
     print("NETWORK TRAFFIC MONITORING PLATFORM")
     print("="*60)
-    print("\n✓ Server starting...")
-    print("✓ Make sure your index.html is in the 'templates' folder")
-    print("✓ Open your web browser")
-    print("✓ Go to: http://localhost:5000")
+    if SCAPY_AVAILABLE:
+        print("\n✓ REAL-TIME packet capture mode ENABLED")
+        print("✓ Using Scapy to sniff network traffic")
+        print("✓ Make sure to run with sufficient privileges:")
+        print("    - Linux/macOS: sudo python app.py")
+        print("    - Windows: Run as Administrator (with Npcap installed)")
+    else:
+        print("\n⚠ SIMULATION mode (install Scapy for real capture)")
+        print("  pip install scapy")
+    
+    print("\n✓ Flask server starting...")
+    print("✓ Open browser at: http://localhost:5000")
     print("✓ Click START to begin monitoring")
-    print("\nPress CTRL+C to stop the server")
+    print("\nPress CTRL+C to stop")
     print("="*60)
     app.run(debug=True, port=5000)
