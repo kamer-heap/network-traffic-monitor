@@ -41,34 +41,34 @@
 
 The platform demonstrates core networking concepts through a fully functional, browser-based live dashboard:
 
-- 🔄 **Hybrid capture** — real-time packet sniffing (Scapy) with automatic fallback to intelligent simulation
-- 📊 **Live statistics** — tracks total packets, per-protocol counts, and average packet size
-- 🔍 **Filtering** — filter traffic by protocol, source IP, or destination IP
-- 📜 **Activity logging** — timestamped log of all user actions and system events
-- 🧩 **Clean REST API** — decoupled backend/frontend architecture using Flask
+- **Hybrid capture** — real-time packet sniffing (Scapy) with automatic fallback to intelligent simulation
+-  **Live statistics** — tracks total packets, per-protocol counts, and average packet size
+-  **Filtering** — filter traffic by protocol, source IP, or destination IP
+-  **Activity logging** — timestamped log of all user actions and system events
+-  **Clean REST API** — decoupled backend/frontend architecture using Flask
 
 No external JavaScript frameworks. No paid tools. Just Python + a browser.
 
 ---
 
-## ✨ Features
+##  Features
 
 
 | Feature | Description |
 |---|---|
-| ▶️ **Start / Stop Monitoring** | Toggle live packet capture (real or simulated) on/off |
-| 📦 **Live Packet Table** | View packets with time, source/destination IP & port, protocol, service, and size |
-| 🏷️ **Protocol Badges** | Color-coded badges for TCP (blue), UDP (orange), and ICMP (pink) |
-| 📈 **Statistics Bar** | Total packets, TCP/UDP/ICMP counts, and average packet size — all live |
-| 🔎 **Smart Filtering** | Filter by protocol dropdown, source IP, or destination IP (partial match supported) |
-| 🗑️ **Clear Data** | Wipe all captured packets and reset statistics in one click |
-| 🖥️ **Activity Log** | Timestamped event log capped at 50 entries with FIFO rotation |
-| 🌙 **Terminal Dark UI** | Fully responsive dark-theme interface with pulsing live indicator |
-| 🔌 **20+ Port Mappings** | Maps well-known ports to service names (HTTP, SSH, DNS, MySQL, and more) |
-| 💾 **Memory-Safe** | Packet buffer capped at 200 entries to prevent memory growth |
+|  **Start / Stop Monitoring** | Toggle live packet capture (real or simulated) on/off |
+|  **Live Packet Table** | View packets with time, source/destination IP & port, protocol, service, and size |
+|  **Protocol Badges** | Color-coded badges for TCP (blue), UDP (orange), and ICMP (pink) |
+|  **Statistics Bar** | Total packets, TCP/UDP/ICMP counts, and average packet size — all live |
+|  **Smart Filtering** | Filter by protocol dropdown, source IP, or destination IP (partial match supported) |
+|  **Clear Data** | Wipe all captured packets and reset statistics in one click |
+|  **Activity Log** | Timestamped event log capped at 50 entries with FIFO rotation |
+|  **Terminal Dark UI** | Fully responsive dark-theme interface with pulsing live indicator |
+|  **20+ Port Mappings** | Maps well-known ports to service names (HTTP, SSH, DNS, MySQL, and more) |
+| **Memory-Safe** | Packet buffer capped at 200 entries to prevent memory growth |
 
 ---
-## 🧪 Real Capture vs Simulation Mode
+##  Real Capture vs Simulation Mode
 
 | Mode | When used | Features |
 |---|---|---|
@@ -80,7 +80,7 @@ The system decides automatically at startup and prints a message in the terminal
 - `⚠ SIMULATION mode (install Scapy for real capture)`
 
 ---
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Backend
 | Technology | Role |
@@ -109,7 +109,7 @@ The system decides automatically at startup and prints a message in the terminal
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 network-traffic-monitor/
@@ -124,7 +124,7 @@ network-traffic-monitor/
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -167,15 +167,15 @@ http://localhost:5000
 
 ### Usage
 
-1. **▶ START** — begins monitoring: (real mode) starts sniffing live traffic; (simulation mode) generates 50 initial packets then adds one every 2 seconds
-2. **■ STOP** — pauses packet generation (data is preserved)
-3. **✕ CLEAR** — wipes all packet data and resets statistics
+1. ** START** — begins monitoring: (real mode) starts sniffing live traffic; (simulation mode) generates 50 initial packets then adds one every 2 seconds
+2. **STOP** — pauses packet generation (data is preserved)
+3. ** CLEAR** — wipes all packet data and resets statistics
 4. Use the **Filter Bar** to narrow results by protocol, source IP, or destination IP
-5. Click **↺ RESET** to restore the full unfiltered view
+5. Click ** RESET** to restore the full unfiltered view
 
 ---
 
-## 📡 API Reference
+##  API Reference
 
 All endpoints are served at `http://localhost:5000`.
 
@@ -187,7 +187,7 @@ All endpoints are served at `http://localhost:5000`.
 | `GET` | `/api/packets` | Returns the full packet list as a JSON array |
 | `GET` | `/api/stats` | Returns aggregated stats: totals, protocol counts, average size |
 | `POST` | `/api/clear` | Clears all packet data and resets the buffer |
-> ✅ This mapping applies to **both real captured packets** (from Scapy) and simulated packets.
+>  This mapping applies to **both real captured packets** (from Scapy) and simulated packets.
 
 ### Example Response — `/api/stats`
 
@@ -236,7 +236,7 @@ The backend maps 20+ well-known port numbers to application-layer service names:
 > Unrecognized ports are displayed as `Port-{n}`. ICMP packets have no port and are labeled `ICMP`.
 
 ---
-## 📄 License
+##  License
 
 MIT License
 
@@ -262,14 +262,14 @@ SOFTWARE.*
 
 ---
 
-## 👩‍💻 Author
+##  Author
 
 **Khadija Amer**  
 GitHub: [@kamer-stack](https://github.com/kamer-stack)
 
 ---
 
-## ⭐ Show Your Support
+##  Show Your Support
 
 If you found this project helpful, please give it a ⭐ on GitHub!
 
