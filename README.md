@@ -35,7 +35,29 @@
 </div>
 
 ---
+## 📸 Dashboard Preview
 
+### Main Dashboard
+![Dashboard Preview](https://raw.githubusercontent.com/kamer-stack/network-traffic-monitor/main/network_traffic_monitor/assets/screenshot.jpg)
+
+
+---
+
+## 🧪 Simulation Mode
+
+When Scapy is unavailable or insufficient privileges are detected, the application automatically switches to simulation mode.
+
+![Simulation Mode](https://raw.githubusercontent.com/kamer-stack/network-traffic-monitor/main/network_traffic_monitor/assets/sim.png)
+
+---
+
+## 🌐 Real Packet Capture Mode
+
+When Scapy is installed and run with required permissions, the dashboard captures real packets in real time.
+
+![Real Packet Capture](https://raw.githubusercontent.com/kamer-stack/network-traffic-monitor/main/network_traffic_monitor/assets/real.png)
+
+---
 ## 🌐 About the Project
 
 
