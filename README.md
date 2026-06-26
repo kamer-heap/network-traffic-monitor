@@ -287,7 +287,7 @@ SOFTWARE.*
 ##  Author
 
 **Khadija Amer**  
-GitHub: [@kamer-stack](https://github.com/kamer-stack)
+GitHub: [@kamer-heap](https://github.com/kamer-heap)
 
 ---
 
